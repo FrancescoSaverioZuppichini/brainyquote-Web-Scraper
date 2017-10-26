@@ -26,27 +26,17 @@ async function getQuotesFromTopics(refs) {
   refs.forEach(ref => {
     var url = `https://www.brainyquote.com${ref}`
     for (i = 0; i < 9; i++) {
-      temp = url.replace('.html', `${i}.html`)
-      console.log(temp);
-
-      promises.push(axios.get(temp).then(({
-        data
-      }) => storeInformationFrom(data)))
+      promises.push(axios.get(url).then(({ data }) => storeInformationFrom(data, ref.match(/_\w*/)[0].replace('_',''))))
     }
     console.log(url);
-
   })
 
   Promise.all(promises).then(data => writeQuotes())
   .catch(e => writeQuotes())
 }
 
-getQuotes()
-
 function writeQuotes() {
-  fs.writeFile("./quotes-all.json", JSON.stringify({
-    quotes
-  }), function (err) {
+  fs.writeFile("./quotes.json", JSON.stringify({ quotes }), function (err) {
     if (err) {
       return console.log(err);
     }
@@ -54,7 +44,7 @@ function writeQuotes() {
   });
 }
 
-function storeInformationFrom(page) {
+function storeInformationFrom(page, topic) {
   const $ = cheerio.load(page)
 
   const quotesText = $(".b-qt")
@@ -65,16 +55,15 @@ function storeInformationFrom(page) {
     let quote = {}
     quote.text = $(quotesText[i]).text()
     quote.author = $(authors[i]).text()
-
+    quote.topic = topic
     quote.tags = []
     // weird stuff. Extract all the tags name
     $(tags[i]).children('a').each(function () {
       quote.tags.push(($(this).text()))
     })
-    // console.log(quote);
-
     quotes.push(quote)
   }
   console.log(`saved ${quotes.length} quotes...`)
-
 }
+
+getQuotes()
