@@ -1,4 +1,4 @@
-# Web Scraper for www.brainyquote
+# Web Scraper for www.brainyquote.com
 ## Get and Store all the quotes
 ### By Francesco Saverio Zuppichini
 
